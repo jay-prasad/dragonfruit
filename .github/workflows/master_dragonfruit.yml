@@ -16,10 +16,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Node.js version
+      - name: Get NodeJS Version from package.json
+        run: |
+          echo "$(cat ./package.json)" | jq .engines.node | xargs -I {} echo "NodeVersion="{} >> $GITHUB_ENV
+      - name: Use Node.js ${{ env.NodeVersion }}
         uses: actions/setup-node@v3
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NodeVersion }}
 
       - name: npm install, build, and test
         run: |

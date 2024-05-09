@@ -1,18 +1,26 @@
 {
   "name": "my-saml-project",
   "version": "1.0.0",
-  "description": "",
+  "description": "A project to implement SAML SSO and interact with Salesforce",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"No tests specified\""
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "saml",
+    "salesforce",
+    "authentication",
+    "sso"
+  ],
+  "author": "Your Name",
   "license": "ISC",
   "dependencies": {
     "express": "^4.19.2",
-    "saml2-js": "^4.0.2"
+    "saml2-js": "^4.0.2",
+    "body-parser": "^1.19.0",
+    "express-session": "^1.17.2",
+    "axios": "^0.27.2"
   },
   "engines": {
     "node": "20.13.0"

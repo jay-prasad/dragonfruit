@@ -3,6 +3,9 @@ const fs = require('fs');
 const saml2 = require('saml2-js');
 const path = require('path');
 const bodyParser = require('body-parser');
+const session = require('express-session');
+const { getSalesforceAccessToken } = require('./salesforceAuth');
+const { createCase } = require('./salesforceApi'); // Make sure this module is implemented as described previously
 
 // Load private key and certificate
 const privateKeyPath = path.join(__dirname, 'private_key.pem');
@@ -32,7 +35,15 @@ const idp = new saml2.IdentityProvider(idpOptions);
 
 // Initialize Express
 const app = express();
-const PORT = process.env.PORT || 3000; // Use Azure assigned port, or default to 3000 if local
+const PORT = process.env.PORT || 3000;
+
+// Add session middleware
+app.use(session({
+  secret: 'very secret',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: !true }  // Set secure: true in production with HTTPS
+}));
 
 // Middleware to parse the body of POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -49,11 +60,34 @@ app.get('/login', (req, res) => {
 // Endpoint to process the response from identity provider
 app.post('/assert', (req, res) => {
   const options = {request_body: req.body};
-  sp.post_assert(idp, options, (err, samlResponse) => {
+  sp.post_assert(idp, options, async (err, samlResponse) => {
     if (err) return res.status(500).send(err);
-    // Successful SAML response, proceed with your logic
+
+    // Assuming Federated ID is retrieved like this (this will depend on your SAML response structure)
+    const federatedId = samlResponse.user.attributes['Federated ID Attribute Name'];
+
+    // Store Federated ID in session
+    req.session.federatedId = federatedId;
+
     return res.send(`Hello ${samlResponse.user.name_id}`);
   });
+});
+
+// Endpoint to create a case in Salesforce
+app.post('/create-case', async (req, res) => {
+  if (!req.session.federatedId) {
+    return res.status(401).send('User not authenticated or session expired');
+  }
+
+  try {
+    const accessToken = await getSalesforceAccessToken(req.session.federatedId);
+    const caseData = req.body; // Expects case data to be provided in the request body
+    const caseResponse = await createCase(accessToken, caseData);
+    res.status(200).json({ message: 'Case created successfully', caseDetails: caseResponse });
+  } catch (error) {
+    console.error('Error creating case:', error);
+    res.status(500).json({ message: 'Failed to create case in Salesforce', error: error.message });
+  }
 });
 
 // Start the server

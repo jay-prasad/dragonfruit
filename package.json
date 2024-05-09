@@ -16,11 +16,12 @@
   "author": "Your Name",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.19.2",
-    "saml2-js": "^4.0.2",
+    "axios": "^0.27.2",
     "body-parser": "^1.19.0",
+    "express": "^4.19.2",
     "express-session": "^1.17.2",
-    "axios": "^0.27.2"
+    "jsonwebtoken": "^9.0.2",
+    "saml2-js": "^4.0.2"
   },
   "engines": {
     "node": "20.13.0"

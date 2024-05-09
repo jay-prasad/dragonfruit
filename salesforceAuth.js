@@ -11,7 +11,7 @@ function generateJWT(federatedId) {
     const payload = {
         iss: '3MVG9XgkMlifdwVC7HpVYXbtS0.oqrzuNlp6zmZXDWtiIISFV.xfinfE12Ow_cRcE8fvA5eNGRmeZxSCUvXQ2',
         sub: federatedId,
-        aud: 'https://login.salesforce.com',
+        aud: 'https://jpcom-2e-dev-ed.develop.my.site.com',
         exp: Math.floor(Date.now() / 1000) + (3 * 60)
     };
 
@@ -23,7 +23,7 @@ async function getSalesforceAccessToken(federatedId) {
     const data = `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${token}`;
 
     try {
-        const response = await axios.post('https://login.salesforce.com/services/oauth2/token', data, {
+        const response = await axios.post('https://jpcom-2e-dev-ed.develop.my.site.com/services/oauth2/token', data, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
         return response.data.access_token;

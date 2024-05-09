@@ -4,15 +4,10 @@ const saml2 = require('saml2-js');
 const path = require('path');
 const bodyParser = require('body-parser');
 
-// Define the base directory for certificates and keys
-//const baseCertPath = path.join(__dirname, 'my-saml-project');
-
-//console.log(__dirname); 
-
 // Load private key and certificate
-const privateKeyPath = path.join('./private_key.pem');
+const privateKeyPath = path.join(__dirname, 'private_key.pem');
 const privateKey = fs.readFileSync(privateKeyPath, "utf8");
-const certificatePath = path.join('./certificate.pem');
+const certificatePath = path.join(__dirname, 'certificate.pem');
 const certificate = fs.readFileSync(certificatePath, 'utf8');
 
 // Create service provider
@@ -37,7 +32,7 @@ const idp = new saml2.IdentityProvider(idpOptions);
 
 // Initialize Express
 const app = express();
-const port = 3000;
+const PORT = process.env.PORT || 3000; // Use Azure assigned port, or default to 3000 if local
 
 // Middleware to parse the body of POST requests
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -57,12 +52,11 @@ app.post('/assert', (req, res) => {
   sp.post_assert(idp, options, (err, samlResponse) => {
     if (err) return res.status(500).send(err);
     // Successful SAML response, proceed with your logic
-    // Make sure to confirm the structure of samlResponse to handle it properly
     return res.send(`Hello ${samlResponse.user.name_id}`);
   });
 });
 
 // Start the server
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
 });
